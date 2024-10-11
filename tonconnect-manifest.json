@@ -1,5 +1,5 @@
 {
-    "url": "your url",
+    "url": "http://localhost:5173/testnet-tonconnect-manifest.json",
     "name": "TON wallet connect",
-    "iconUrl": "logo file"
+    "iconUrl": "https://ton.vote/logo.png"
 }

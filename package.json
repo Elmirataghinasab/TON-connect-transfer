@@ -17,6 +17,7 @@
     "@tonconnect/ui-react": "^2.0.9",
     "buffer": "^6.0.3",
     "chunk": "^0.0.3",
+    "http-proxy-middleware": "^3.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "tonweb": "^0.0.66",
