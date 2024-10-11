@@ -23,9 +23,9 @@ install this projects packages from it's json file  with npm (make sure you use 
 ```bash
 npm install 
 ```
-
-
 change tonconnect JSON file to run your file correctly
+and change owner address in the app.jsx
+
 
 ## Running Tests
 
