@@ -15,7 +15,7 @@ const Body =() => {
   const ownerAddress="ownerAddress"
   const hamesterTokenAddress="EQAJ8uWd7EBqsmpSWaRdf_I-8R8-XHwh3gsNKhy-UrdrPcUo"
   const notcoinTokenAddress="EQAvlWFDxGF2lXm67y4yzC17wYKD9A0guwPkMs1gOsM__NOT"
-  const tonAddress="EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c"
+  
 
   const [hamesterBalance, setHamesterBalance] = useState(null);
   const [notCoinBalance, setNotCoinBalance] = useState(null);
@@ -34,7 +34,7 @@ const Body =() => {
 
 
     try {
-      const walletAddress = new TonWeb.utils.Address(tokenAddress);
+      const walletAddress = new TonWeb.utils.Address(userAddress);
       const balance = await tonweb.provider.getBalance(walletAddress);
       return TonWeb.utils.fromNano(balance); 
     } catch (error) {
@@ -48,7 +48,7 @@ const Body =() => {
 
     const balanceOfHamester = await fetchUserTokenBalance(userAddress, hamesterTokenAddress);
     const balanceOfNotCoin = await fetchUserTokenBalance(userAddress, notcoinTokenAddress);
-    const balanceOfTon = await fetchUserTokenBalance(userAddress, tonAddress);
+    const balanceOfTon = await fetchUserTokenBalance(userAddress, userAddress);
 
     setHamesterBalance(balanceOfHamester);
     setNotCoinBalance(balanceOfNotCoin);
