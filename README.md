@@ -29,14 +29,8 @@ and change owner address in the app.jsx
 
 ## Running Tests
 
-to run test add this parts to the code (App.jsx)and test
-```
-const tonweb = new TonWeb(new TonWeb.HttpProvider('https://mainnet-rpc.tonxapi.com/v2/json-rpc/apikey', {
-    apiKey: 'your-APi-key'  
-})) 
-```
+to run test use the tonweb provider
 faucet some TON on testnet and run script again
-comment  ```const tonweb = new TonWeb();``` 
 
 
 
